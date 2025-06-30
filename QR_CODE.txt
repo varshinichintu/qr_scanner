@@ -1,0 +1,50 @@
+!pip install opencv-python
+!pip install pyzbar
+!apt install libzbar0
+import cv2
+from pyzbar.pyzbar import decode
+
+class Node:
+    def __init__(self, data):  # Corrected __init__ method
+        self.data = data
+        self.next = None
+
+class QRCodeScanner:
+    def __init__(self):  # Corrected __init__ method
+        self.head = None
+
+    def append(self, data):
+        new_node = Node(data)
+        if not self.head:
+            self.head = new_node
+        else:
+            current = self.head
+            while current.next:
+                current = current.next
+            current.next = new_node
+
+    def scan_qr_codes(self, image_path):
+        image = cv2.imread(image_path)
+        if image is None:
+            print("Error: Image not found or cannot be read.")
+            return
+
+        barcodes = decode(image)
+
+        for barcode in barcodes:
+            data = barcode.data.decode('utf-8')
+            self.append(data)
+
+# Example usage
+scanner = QRCodeScanner()
+scanner.scan_qr_codes('/content/mult_qr.jpg')  # Update with the correct image path
+
+# Access scanned QR codes
+current = scanner.head
+
+if current is None:
+    print("No QR codes found.")
+else:
+    while current:
+        print(current.data)
+        current = current.next
